@@ -7,38 +7,35 @@
 shenwei356.theme <- function() {
   shenwei356.theme <- theme_bw() +
     theme(
+      text = element_text(
+        size = 14,
+        color = "black",
+        # face = "bold",
+        family = "arial"
+      ),
+      title = element_text(size = 16),
+
       panel.border = element_blank(),
       panel.background = element_blank(),
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
+
+      axis.title = element_text(size = 14),
       axis.line = element_line(color = "black", size = 0.8),
       axis.ticks = element_line(size = 0.8),
-      axis.text = element_text(color = "black"),
-      # axis.text.x = element_text(
-      #     angle = 30, hjust = 1, vjust = 1
-      # ),
+      axis.text = element_text(size = 11, color = "black"),
 
       legend.key = element_blank(),
       legend.title = element_blank(),
-      legend.text = element_text(size = 14, face = "plain"),
+      legend.text = element_text(size = 14),
       legend.background = element_rect(fill = "transparent"),
+
       strip.background = element_rect(
         colour = "white",
         fill = "white",
         size = 0.2
       ),
-      strip.text.x = element_text(size = 14),
-
-      text = element_text(
-        size = 14,
-        family = "arial",
-        face = "bold"
-      ),
-      plot.title = element_text(
-        size = 16,
-        family = "arial",
-        face = "bold"
-      )
+      strip.text = element_text(size = 14)
     )
   shenwei356.theme
 }
