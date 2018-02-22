@@ -9,4 +9,3 @@ shenwei356.theme()
 \description{
 shenwei356's ggplot2 theme
 }
-

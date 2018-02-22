@@ -21,9 +21,17 @@ shenwei356.theme <- function() {
       panel.grid.minor = element_blank(),
 
       axis.title = element_text(size = 14),
-      axis.line = element_line(color = "black", size = 0.8),
-      axis.ticks = element_line(size = 0.8),
-      axis.text = element_text(size = 11, color = "black"),
+      axis.line = element_line(
+        color = "black",
+        size = 0.8,
+        lineend = "round"
+      ),
+      axis.ticks = element_line(
+        color = "black",
+        size = 0.8,
+        lineend = "round"
+      ),
+      axis.text = element_text(color = "black", size = 12),
 
       legend.key = element_blank(),
       legend.title = element_blank(),
@@ -70,13 +78,13 @@ blank.theme <- function() {
   blank.theme
 }
 
-#' plot.image
+#' plot_png
 #'
 #' @import ggplot2
 #' @importFrom png readPNG
 #' @importFrom grid rasterGrob
 #' @export
-plot.png <- function(file) {
+plot_png <- function(file) {
   img <- readPNG(file)
   g <- rasterGrob(img, interpolate = TRUE)
 
@@ -85,7 +93,6 @@ plot.png <- function(file) {
     # geom_blank() +
     xlim(0, 1) +
     ylim(0, 1) +
-    # ggtitle("Groups") +
     annotation_custom(
       g,
       xmin = -Inf,
@@ -93,6 +100,129 @@ plot.png <- function(file) {
       ymin = -Inf,
       ymax = Inf
     ) +
-    blank.theme
+    blank.theme()
   p
 }
+
+#' add.anova.pairwise.comparison
+#'
+#' @import ggplot2
+#' @import dplyr
+#' @import tidyr
+#' @export
+add.anova.pairwise.comparison <-
+  function(# colname must be "value" and "group"
+    df,
+    # ymin of hline
+    ymin,
+    # space between hlines
+    space,
+    # space between label and hline
+    spaceLabel,
+    # length of tips
+    lenTip,
+    # comparisons to include
+    includeComps = c()) {
+    # group => x
+    keys <- levels(df$group)
+    group2x <- as.list(seq(1, length(keys)))
+    names(group2x) <- keys
+
+    # stats
+    pc <- TukeyHSD(aov(value ~ group, df))$group
+    pc <- as.data.frame(pc)
+    pc$comp <- rownames(pc)
+    rownames(pc) <- NULL
+    colnames(pc) <- c("diff", "lwr", "upr", "p.adj", "comp")
+    pc <- pc %>%
+      select(comp, p.adj) %>%
+      filter(p.adj <= 0.05) %>%
+      separate(comp, c("a", "b"), sep = "-", remove = FALSE)
+
+    if (length(includeComps) > 0) {
+      pc <- pc %>% filter(comp %in% includeComps)
+    }
+
+    # hlines
+    X <- c()
+    Y <- c()
+    Xend <- c()
+    Ylabel <- c()
+    P <- c()
+    for (i in 1:nrow(pc)) {
+      P <- append(P, pc$p.adj[i])
+      x1 <- group2x[[pc$a[i]]]
+      x2 <- group2x[[pc$b[i]]]
+      y <- ymin + i * space
+
+      X = append(X, x1)
+      Xend = append(Xend, x2)
+      Y = append(Y, y)
+
+      Ylabel = append(Ylabel, ymin + i * space + spaceLabel)
+    }
+    df <- data.frame(
+      x = X,
+      y = Y,
+      xend = Xend,
+      yend = Y,
+      ylabel = Ylabel,
+      p = P
+    )
+
+    # tips
+    X <- c()
+    Y <- c()
+    Xend <- c()
+    Yend <- c()
+    for (i in 1:nrow(pc)) {
+      x1 <- group2x[[pc$a[i]]]
+      x2 <- group2x[[pc$b[i]]]
+      y <- ymin + i * space
+
+      X = append(X, c(x1, x2))
+      Xend = append(Xend, c(x1, x2))
+      Y = append(Y, c(y, y))
+      Yend = append(Yend, c(y - lenTip, y - lenTip))
+    }
+
+    df2 <- data.frame(
+      x = X,
+      y = Y,
+      xend = Xend,
+      yend = Yend
+    )
+
+    p <- list(
+      geom_segment(
+        data = df,
+        aes(
+          x = x,
+          y = y,
+          xend = xend,
+          yend = yend
+        ),
+        color = "black",
+        lineend = "round"
+      ),
+      geom_segment(
+        data = df2,
+        aes(
+          x = x,
+          y = y,
+          xend = xend,
+          yend = yend
+        ),
+        color = "black",
+        lineend = "round"
+      ),
+      geom_text(data = df,
+                aes(
+                  x = (x + xend) / 2,
+                  y = ylabel,
+                  label = ifelse(p < 0.01,
+                                 ifelse(p < 0.001, "***", "**"),
+                                 "*")
+                ))
+    )
+  }
