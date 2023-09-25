@@ -23,12 +23,12 @@ shenwei356.theme <- function() {
       axis.title = element_text(size = 14),
       axis.line = element_line(
         color = "black",
-        size = 0.8,
+        size = 0.65,
         lineend = "round"
       ),
       axis.ticks = element_line(
         color = "black",
-        size = 0.8,
+        size = 0.65,
         lineend = "round"
       ),
       axis.text = element_text(color = "black", size = 12),

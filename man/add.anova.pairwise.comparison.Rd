@@ -4,8 +4,14 @@
 \alias{add.anova.pairwise.comparison}
 \title{add.anova.pairwise.comparison}
 \usage{
-add.anova.pairwise.comparison(df, ymin, space, spaceLabel, lenTip,
-  includeComps = c())
+add.anova.pairwise.comparison(
+  df,
+  ymin,
+  space,
+  spaceLabel,
+  lenTip,
+  includeComps = c()
+)
 }
 \description{
 add.anova.pairwise.comparison
